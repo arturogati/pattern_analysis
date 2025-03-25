@@ -103,7 +103,7 @@ class BullishHarami:
                 
                 # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}:")
+                    print(f"\nУсловие соблюдается для {symbol}: Bullish harami")
                     #print(df[["timestamp", "open", "close", "high", "low"]])
             
             except Exception as e:

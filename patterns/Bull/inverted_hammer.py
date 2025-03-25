@@ -102,7 +102,7 @@ class InvertedHammer:
                 
                 # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}:")
+                    print(f"\nУсловие соблюдается для {symbol}: inverted hammer")
                     #print(df[["timestamp", "open", "close"]])
             
             except Exception as e:

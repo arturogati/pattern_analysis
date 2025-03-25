@@ -126,7 +126,7 @@ class FallingStar:
                 
                 # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}:")
+                    print(f"\nУсловие соблюдается для {symbol}: falling stars")
                     
             except Exception as e:
                 continue

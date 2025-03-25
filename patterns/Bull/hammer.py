@@ -98,7 +98,7 @@ class HammerPattern:
                 
                 # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}:")
+                    print(f"\nУсловие соблюдается для {symbol}: hammer")
                     #print(df[["timestamp", "open", "close"]])
             
             except Exception as e:

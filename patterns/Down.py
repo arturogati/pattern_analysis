@@ -4,7 +4,7 @@ import asyncio
 import Bear.Bearish_harami
 import Bear.Dark_storm_cloud
 import Bear.Falling_stars
-
+import Bear.new_heights
 
 class DownSignals:
     async def bearish_harami(self):
@@ -19,7 +19,7 @@ class DownSignals:
         """
         Асинхронная функция для поиска паттерна Dark Storm Cloud.
         """
-        scanner = Bear.Dark_storm_cloud.DarkStormCloud
+        scanner = Bear.Dark_storm_cloud.DarkStormCloud()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -28,6 +28,14 @@ class DownSignals:
         Асинхронная функция для поиска паттерна Falling Stars.
         """
         scanner = Bear.Falling_stars.FallingStar()
+        # Запускаем сканирование всех активов
+        await asyncio.to_thread(scanner.scan_all_symbols)
+
+    async def new_heights(self):
+        """
+        Асинхронная функция для поиска паттерна 8-9 new heights.
+        """
+        scanner = Bear.new_heights.NewHeights()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -44,7 +52,8 @@ async def main():
     await asyncio.gather(
         down_signals.bearish_harami(),
         down_signals.dark_storm_cloud(),
-        down_signals.falling_stars()
+        down_signals.falling_stars(),
+        down_signals.new_heights()
     )
 
 # Запуск асинхронного кода

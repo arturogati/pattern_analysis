@@ -1,4 +1,5 @@
 import Bull
+import Bull.bullish_effort
 import Bull.bullish_harami
 import Bull.hammer
 import asyncio
@@ -31,6 +32,14 @@ class LongSignals:
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
+    async def bullish_effort(self):
+        """
+        Асинхронная функция для поиска паттерна Bullish effort .
+        """
+        scanner = Bull.bullish_effort.BullishEffort()
+        # Запускаем сканирование всех активов
+        await asyncio.to_thread(scanner.scan_all_symbols)
+
         
 
 async def main():
@@ -44,7 +53,8 @@ async def main():
     await asyncio.gather(
         long_signals.bullish_harami(),
         long_signals.hammer(),
-        long_signals.inverted_hammer()
+        long_signals.inverted_hammer(),
+        long_signals.bullish_effort()
     )
 
 # Запуск асинхронного кода

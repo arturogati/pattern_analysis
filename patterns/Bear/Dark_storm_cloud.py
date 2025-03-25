@@ -102,7 +102,7 @@ class DarkStormCloud:
                 
                 # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}:")
+                    print(f"\nУсловие соблюдается для {symbol}: dark storm cloud")
                     #print(df[["timestamp", "open", "close"]])
             
             except Exception as e:
