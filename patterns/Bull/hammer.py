@@ -99,7 +99,7 @@ class HammerPattern:
                 # Проверяем условие
                 if self.check_condition(df):
                     parsing.parser.check_teck(symbols=symbol)
-                    if parsing.parser.check_teck(symbols=symbol) == 1:
+                    if parsing.parser.check_teck(symbols=symbol) == 2:
                         print(f"\nУсловие соблюдается для {symbol}")
                         #print(df[["timestamp", "open", "close"]])
             

@@ -103,7 +103,7 @@ class DarkStormCloud:
                 
                 if self.check_condition(df):
                     parsing.parser.check_teck(symbols=symbol)
-                    if parsing.parser.check_teck(symbols=symbol) == 2:
+                    if parsing.parser.check_teck(symbols=symbol) == 1:
                         print(f"\nУсловие соблюдается для {symbol}")
             
             except Exception as e:
