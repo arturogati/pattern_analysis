@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-
+import parsing
 class BullishHarami:
     def __init__(self):
         """
@@ -103,8 +103,10 @@ class BullishHarami:
                 
                 # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}: Bullish harami")
-                    #print(df[["timestamp", "open", "close", "high", "low"]])
+                    parsing.parser.check_teck(symbols=symbol)
+                    if parsing.parser.check_teck(symbols=symbol) == 1:
+                        print(f"\nУсловие соблюдается для {symbol}")
+                        #print(df[["timestamp", "open", "close"]])
             
             except Exception as e:
                 print(f"Ошибка при обработке {symbol}: {e}")

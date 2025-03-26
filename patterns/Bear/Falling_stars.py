@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import parsing
 
 class FallingStar:
     def __init__(self):
@@ -124,9 +125,10 @@ class FallingStar:
                 # Получаем последние 6 свечей
                 df = self.get_historical_candles(symbol, interval="60", limit=6)
                 
-                # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}: falling stars")
+                    parsing.parser.check_teck(symbols=symbol)
+                    if parsing.parser.check_teck(symbols=symbol) == 2:
+                        print(f"\nУсловие соблюдается для {symbol}")
                     
             except Exception as e:
                 continue

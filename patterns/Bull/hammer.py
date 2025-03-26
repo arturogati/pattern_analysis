@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-
+import parsing
 class HammerPattern:
     def __init__(self):
         """
@@ -98,8 +98,10 @@ class HammerPattern:
                 
                 # Проверяем условие
                 if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}: hammer")
-                    #print(df[["timestamp", "open", "close"]])
+                    parsing.parser.check_teck(symbols=symbol)
+                    if parsing.parser.check_teck(symbols=symbol) == 1:
+                        print(f"\nУсловие соблюдается для {symbol}")
+                        #print(df[["timestamp", "open", "close"]])
             
             except Exception as e:
                 print(f"Ошибка при обработке {symbol}: {e}")
