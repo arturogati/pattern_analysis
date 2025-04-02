@@ -2,10 +2,10 @@ import requests
 import pandas as pd
 import numpy as np
 
-class EnhancedInvertedHammerScanner:
+class EnhancedBullishWindowScanner:
     def __init__(self):
         """
-        Инициализация класса EnhancedInvertedHammerScanner.
+        Инициализация класса EnhancedBullishWindowScanner.
         """
         self.base_url = "https://api.bybit.com/v5/market"
 
@@ -26,7 +26,7 @@ class EnhancedInvertedHammerScanner:
         
         return [item["symbol"] for item in data["result"]["list"] if item["symbol"].endswith("USDT")]
 
-    def get_historical_candles(self, symbol, interval="60", limit=6):
+    def get_historical_candles(self, symbol, interval="60", limit=7):
         """
         Получает исторические данные о свечах с Bybit.
         """
@@ -54,69 +54,80 @@ class EnhancedInvertedHammerScanner:
         df[numeric_cols] = df[numeric_cols].astype(float)
         df["timestamp"] = pd.to_datetime(df["timestamp"].astype(int), unit="ms")
         
+        # Добавляем расчет скользящих средних для объема
+        df['volume_ma'] = df['volume'].rolling(window=5).mean()
+        
         return df
 
-    def check_inverted_hammer(self, df):
+    def check_bullish_window_enhanced(self, df):
         """
-        Улучшенная проверка паттерна Inverted Hammer с анализом 6 свечей:
-        1. Подтверждение нисходящего тренда (минимум 3 из 5 предыдущих свечей красные)
-        2. Стандартные условия Inverted Hammer для последней свечи
-        3. Подтверждение объема (объем последней свечи выше среднего)
+        Улучшенная проверка паттерна Bullish Window с анализом 7 свечей:
+        1. Подтверждение нисходящего тренда (минимум 4 из 6 предыдущих свечей красные)
+        2. Стандартные условия Bullish Window для последних двух свечей
+        3. Подтверждение объема (объем на паттерне выше среднего)
+        4. Проверка на сопротивление (цена не должна встречать сильное сопротивление)
         """
-        if len(df) < 6:
+        if len(df) < 7:
             return False
 
-        # 1. Проверка нисходящего тренда (минимум 3 из 5 предыдущих свечей красные)
-        prev_candles = df.iloc[:5]
+        # 1. Проверка нисходящего тренда
+        prev_candles = df.iloc[:5]  # Свечи до паттерна
         red_count = sum(prev_candles["close"] < prev_candles["open"])
-        if red_count < 3:
+        if red_count < 4:
             return False
 
-        # 2. Анализ последней свечи (потенциальный Inverted Hammer)
-        last_candle = df.iloc[5]
-        body_size = abs(last_candle["close"] - last_candle["open"])
-        upper_shadow = last_candle["high"] - max(last_candle["open"], last_candle["close"])
-        lower_shadow = min(last_candle["open"], last_candle["close"]) - last_candle["low"]
+        # 2. Анализ последних двух свечей (потенциальный Bullish Window)
+        first_candle = df.iloc[5]  # Первая свеча паттерна
+        second_candle = df.iloc[6]  # Вторая свеча паттерна
         
-        # Основные условия Inverted Hammer
-        is_small_body = body_size <= upper_shadow / 2
-        has_small_lower_shadow = lower_shadow <= body_size / 2
-        has_long_upper_shadow = upper_shadow >= 2 * body_size
+        # Основные условия Bullish Window
+        first_red = first_candle["close"] < first_candle["open"]
+        second_green = second_candle["close"] > second_candle["open"]
+        open_below_close = second_candle["open"] < first_candle["close"]
+        close_above_open = second_candle["close"] > first_candle["open"]
+        has_gap = second_candle["low"] > first_candle["high"]
         
-        # 3. Проверка объема (объем последней свечи выше среднего)
-        avg_volume = df["volume"].iloc[:5].mean()
-        volume_ok = last_candle["volume"] > avg_volume
+        if not (first_red and second_green and open_below_close and close_above_open and has_gap):
+            return False
 
-        return is_small_body and has_small_lower_shadow and has_long_upper_shadow and volume_ok
+        # 3. Проверка объема
+        volume_ok = second_candle["volume"] > df['volume_ma'].iloc[6]
+        
+        # 4. Проверка на сопротивление (цена не должна быть ниже важного уровня)
+        resistance_check = second_candle["close"] > df['high'].iloc[:5].mean()
+        
+        return volume_ok and resistance_check
 
     def scan_all_symbols(self):
         """
         Сканирует все активы с расширенными условиями.
         """
         symbols = self.get_all_symbols()
-        print(f"Сканирование {len(symbols)} активов на паттерн Inverted Hammer")
+        print(f"Сканирование {len(symbols)} активов на паттерн Bullish Window")
         
         results = []
         for symbol in symbols:
             try:
-                df = self.get_historical_candles(symbol, interval="60", limit=6)
-                if self.check_inverted_hammer(df):
+                df = self.get_historical_candles(symbol, interval="60", limit=7)
+                if self.check_bullish_window_enhanced(df):
                     # Добавляем дополнительную аналитику
                     trend_strength = self.calculate_trend_strength(df)
+                    volume_ratio = df["volume"].iloc[6] / df['volume_ma'].iloc[6]
                     results.append({
                         "symbol": symbol,
                         "trend_strength": trend_strength,
-                        "volume_ratio": df["volume"].iloc[5] / df["volume"].iloc[:5].mean()
+                        "volume_ratio": volume_ratio,
+                        "gap_size": (df.iloc[6]["low"] - df.iloc[5]["high"]) / df.iloc[5]["high"] * 100
                     })
-                    print(f"Найден паттерн для {symbol} | Сила тренда: {trend_strength:.2f}")
+                    print(f"Найден паттерн для {symbol} | Сила тренда: {trend_strength:.2f} | Объем: x{volume_ratio:.1f}")
             
             except Exception as e:
                 print(f"Ошибка при обработке {symbol}: {str(e)[:50]}...")
                 continue
 
         if results:
-            print("\nРезультаты сканирования:")
-            results_df = pd.DataFrame(results).sort_values("trend_strength", ascending=False)
+            print("\nТоп-5 лучших сигналов:")
+            results_df = pd.DataFrame(results).sort_values("trend_strength", ascending=False).head(5)
             print(results_df.to_string(index=False))
         else:
             print("\nПаттерн не обнаружен ни на одном активе.")
@@ -133,5 +144,5 @@ class EnhancedInvertedHammerScanner:
         self.scan_all_symbols()
 
 if __name__ == "__main__":
-    scanner = EnhancedInvertedHammerScanner()
+    scanner = EnhancedBullishWindowScanner()
     scanner.run()

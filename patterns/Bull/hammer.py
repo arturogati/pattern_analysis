@@ -1,24 +1,23 @@
 import requests
 import pandas as pd
+import numpy as np
 
-class HammerPattern:
+class HammerPatternScanner:
     def __init__(self):
         """
-        Инициализация класса CandleScanner.
+        Инициализация класса HammerPatternScanner.
         """
         self.base_url = "https://api.bybit.com/v5/market"
+        self.min_volume_ratio = 1.2  # Минимальное соотношение объема
 
     def get_all_symbols(self):
         """
         Получает список всех торговых пар (активов) на Bybit.
-        
-        :return: Список торговых пар.
         """
         url = f"{self.base_url}/instruments-info"
-        params = {
-            "category": "linear"  # Линейные фьючерсы (USDT-пары)
-        }
+        params = {"category": "linear"}
         response = requests.get(url, params=params)
+        
         if response.status_code != 200:
             raise Exception(f"Ошибка запроса: {response.status_code}, {response.text}")
         
@@ -26,18 +25,11 @@ class HammerPattern:
         if data["retCode"] != 0:
             raise Exception(f"Ошибка API: {data['retMsg']}")
         
-        # Извлекаем список символов и фильтруем только USDT-пары
-        symbols = [item["symbol"] for item in data["result"]["list"] if item["symbol"].endswith("USDT")]
-        return symbols
+        return [item["symbol"] for item in data["result"]["list"] if item["symbol"].endswith("USDT")]
 
     def get_historical_candles(self, symbol, interval="60", limit=6):
         """
         Получает исторические данные о свечах с Bybit.
-        
-        :param symbol: Торговая пара (например, "BTCUSDT").
-        :param interval: Интервал свечи (в минутах). По умолчанию "60" (часовая свеча).
-        :param limit: Количество свечей. По умолчанию 6.
-        :return: DataFrame с данными о свечах.
         """
         url = f"{self.base_url}/kline"
         params = {
@@ -47,6 +39,7 @@ class HammerPattern:
             "limit": limit
         }
         response = requests.get(url, params=params)
+        
         if response.status_code != 200:
             raise Exception(f"Ошибка запроса: {response.status_code}, {response.text}")
         
@@ -57,57 +50,96 @@ class HammerPattern:
         candles = data["result"]["list"]
         df = pd.DataFrame(candles, columns=["timestamp", "open", "high", "low", "close", "volume", "turnover"])
         
-        # Преобразуем данные в числовой формат
-        df[["open", "high", "low", "close", "volume", "turnover"]] = df[["open", "high", "low", "close", "volume", "turnover"]].astype(float)
-        
-        # Преобразуем timestamp в читаемый формат даты
+        # Преобразование данных
+        numeric_cols = ["open", "high", "low", "close", "volume", "turnover"]
+        df[numeric_cols] = df[numeric_cols].astype(float)
         df["timestamp"] = pd.to_datetime(df["timestamp"].astype(int), unit="ms")
+        
+        # Добавляем скользящее среднее объема
+        df['avg_volume'] = df['volume'].rolling(window=5).mean()
         
         return df
 
-    def check_condition(self, df):
+    def is_hammer(self, candle):
         """
-        Проверяет, соблюдается ли условие:
-        - Первые 3 свечи красные.
-        - Последние 3 свечи зелёные.
-        
-        :param df: DataFrame с историческими данными о свечах.
-        :return: True, если условие соблюдается, иначе False.
+        Проверяет, является ли свеча паттерном Hammer.
         """
-       # Проверяем первые 3 свечи (красные)
-        first_three_green = all(df.iloc[i]["close"] > df.iloc[i]["open"] for i in range(3))
-            
-        # Проверяем последние 3 свечи (красные)
-        last_three_red = all(df.iloc[i]["close"] < df.iloc[i]["open"] for i in range(3, 6))
+        body_size = abs(candle['close'] - candle['open'])
+        upper_shadow = candle['high'] - max(candle['open'], candle['close'])
+        lower_shadow = min(candle['open'], candle['close']) - candle['low']
         
-        return first_three_green and last_three_red
+        # Основные условия Hammer
+        small_body = body_size <= (candle['high'] - candle['low']) * 0.3
+        long_lower_shadow = lower_shadow >= 2 * body_size
+        small_upper_shadow = upper_shadow <= body_size * 0.5
+        
+        return small_body and long_lower_shadow and small_upper_shadow
+
+    def check_hammer_pattern(self, df):
+        """
+        Проверяет условия для надежного паттерна Hammer:
+        1. Предшествующий нисходящий тренд (4 из 5 свечей красные)
+        2. Последняя свеча - Hammer
+        3. Подтверждение объема (объем выше среднего)
+        """
+        if len(df) < 6:
+            return False
+
+        # 1. Проверка нисходящего тренда
+        prev_candles = df.iloc[:5]
+        red_count = sum(prev_candles['close'] < prev_candles['open'])
+        if red_count < 4:
+            return False
+
+        # 2. Проверка последней свечи на Hammer
+        last_candle = df.iloc[5]
+        if not self.is_hammer(last_candle):
+            return False
+
+        # 3. Проверка объема
+        if last_candle['volume'] < self.min_volume_ratio * df['avg_volume'].iloc[5]:
+            return False
+
+        return True
 
     def scan_all_symbols(self):
         """
-        Сканирует все активы на Bybit и выводит название пары, если соблюдается условие.
+        Сканирует все активы на паттерн Hammer.
         """
-        # Получаем список всех торговых пар
         symbols = self.get_all_symbols()
-        print(f"Найдено {len(symbols)} активов для сканирования.")
+        print(f"Сканирование {len(symbols)} активов на паттерн Hammer (6 свечей)...")
         
-        # Перебираем все активы
+        results = []
         for symbol in symbols:
             try:
-                # Получаем последние 6 свечей
                 df = self.get_historical_candles(symbol, interval="60", limit=6)
-                
-                # Проверяем условие
-                if self.check_condition(df):
-                    print(f"\nУсловие соблюдается для {symbol}")
+                if self.check_hammer_pattern(df):
+                    # Расчет дополнительных параметров
+                    trend_strength = sum(df.iloc[i]['close'] < df.iloc[i]['open'] for i in range(5))/5
+                    volume_ratio = df.iloc[5]['volume'] / df['avg_volume'].iloc[5]
+                    hammer_size = (df.iloc[5]['high'] - df.iloc[5]['low']) / df.iloc[5]['low'] * 100
+                    
+                    results.append({
+                        "symbol": symbol,
+                        "trend_strength": f"{trend_strength:.0%}",
+                        "volume_ratio": f"{volume_ratio:.1f}x",
+                        "hammer_size": f"{hammer_size:.2f}%"
+                    })
             
             except Exception as e:
-                print(f"Ошибка при обработке {symbol}: {e}")
+                print(f"Ошибка при обработке {symbol}: {str(e)[:50]}...")
                 continue
 
-# Пример использования
+        if results:
+            print("\nНайденные паттерны Hammer:")
+            results_df = pd.DataFrame(results)
+            print(results_df.to_string(index=False))
+        else:
+            print("\nПаттерн Hammer не найден ни на одном активе.")
+
+    def run(self):
+        self.scan_all_symbols()
+
 if __name__ == "__main__":
-    # Создаем объект класса CandleScanner
-    scanner = HammerPattern()
-    
-    # Запускаем сканирование всех активов
-    scanner.scan_all_symbols()
+    scanner = HammerPatternScanner()
+    scanner.run()
