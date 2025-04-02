@@ -1,6 +1,6 @@
 import requests
 import pandas as pd
-import parsing
+
 
 class FallingStar:
     def __init__(self):
@@ -126,9 +126,7 @@ class FallingStar:
                 df = self.get_historical_candles(symbol, interval="60", limit=6)
                 
                 if self.check_condition(df):
-                    parsing.parser.check_teck(symbols=symbol)
-                    if parsing.parser.check_teck(symbols=symbol) == 1:
-                        print(f"\nУсловие соблюдается для {symbol}")
+                    print(f"\nУсловие соблюдается для {symbol}")
                     
             except Exception as e:
                 continue
