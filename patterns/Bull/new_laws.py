@@ -97,7 +97,7 @@ class NewLawsScanner:
         Сканирует все активы на паттерн 8-10 New Laws.
         """
         symbols = self.get_all_symbols()
-        print(f"Сканирование {len(symbols)} активов на паттерн 8-10 New Laws (11 свечей)...")
+        print(f"Сканирование {len(symbols)} активов на паттерн 8-10 New Laws")
         
         results = []
         for symbol in symbols:
@@ -122,7 +122,7 @@ class NewLawsScanner:
                 continue
 
         if results:
-            print("\nНайденные паттерны 8-10 New Laws:")
+            print("\nНайденные паттерны 8-10 New Laws")
             results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
             print(results_df.to_string(index=False))
         else:

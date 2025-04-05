@@ -107,7 +107,7 @@ class HammerPatternScanner:
         Сканирует все активы на паттерн Hammer.
         """
         symbols = self.get_all_symbols()
-        print(f"Сканирование {len(symbols)} активов на паттерн Hammer (6 свечей)...")
+        print(f"Сканирование {len(symbols)} активов на паттерн Hammer")
         
         results = []
         for symbol in symbols:
@@ -131,8 +131,8 @@ class HammerPatternScanner:
                 continue
 
         if results:
-            print("\nНайденные паттерны Hammer:")
-            results_df = pd.DataFrame(results)
+            print("\nНайденные паттерны hammer")
+            results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
             print(results_df.to_string(index=False))
         else:
             print("\nПаттерн Hammer не найден ни на одном активе.")

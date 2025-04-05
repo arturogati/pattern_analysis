@@ -108,18 +108,18 @@ class EnhancedInvertedHammerScanner:
                         "trend_strength": trend_strength,
                         "volume_ratio": df["volume"].iloc[5] / df["volume"].iloc[:5].mean()
                     })
-                    print(f"Найден паттерн для {symbol} | Сила тренда: {trend_strength:.2f}")
+                    pass
             
             except Exception as e:
                 print(f"Ошибка при обработке {symbol}: {str(e)[:50]}...")
                 continue
 
         if results:
-            print("\nРезультаты сканирования:")
-            results_df = pd.DataFrame(results).sort_values("trend_strength", ascending=False)
+            print("\nНайденные паттерны Inverted Hammer")
+            results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
             print(results_df.to_string(index=False))
         else:
-            print("\nПаттерн не обнаружен ни на одном активе.")
+            print("\nПаттерн Inverted Hammer не обнаружен ни на одном активе.")
 
     def calculate_trend_strength(self, df):
         """

@@ -113,7 +113,7 @@ class BullishEngulfingScanner:
         Сканирует все активы на паттерн Bullish Engulfing.
         """
         symbols = self.get_all_symbols()
-        print(f"Сканирование {len(symbols)} активов на паттерн Bullish Engulfing (6 свечей)...")
+        print(f"Сканирование {len(symbols)} активов на паттерн Bullish Engulfing")
         
         results = []
         for symbol in symbols:

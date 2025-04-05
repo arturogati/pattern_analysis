@@ -126,11 +126,11 @@ class EnhancedBullishWindowScanner:
                 continue
 
         if results:
-            print("\nТоп-5 лучших сигналов:")
-            results_df = pd.DataFrame(results).sort_values("trend_strength", ascending=False).head(5)
+            print("\nНайденные паттерны Bullish window:")
+            results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
             print(results_df.to_string(index=False))
         else:
-            print("\nПаттерн не обнаружен ни на одном активе.")
+            print("\nПаттерн bullish window не обнаружен ни на одном активе.")
 
     def calculate_trend_strength(self, df):
         """

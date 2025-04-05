@@ -112,7 +112,7 @@ class BullishHaramiScanner:
         Сканирует все активы на паттерн Bullish Harami.
         """
         symbols = self.get_all_symbols()
-        print(f"Сканирование {len(symbols)} активов на паттерн Bullish Harami (6 свечей)...")
+        print(f"Сканирование {len(symbols)} активов на паттерн Bullish Harami")
         
         results = []
         for symbol in symbols:
@@ -137,8 +137,8 @@ class BullishHaramiScanner:
                 continue
 
         if results:
-            print("\nНайденные паттерны Bullish Harami:")
-            results_df = pd.DataFrame(results).sort_values("trend_strength", ascending=False)
+            print("\nНайденные паттерны Bullish harami:")
+            results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
             print(results_df.to_string(index=False))
         else:
             print("\nПаттерн Bullish Harami не найден ни на одном активе.")
