@@ -2,13 +2,13 @@ import requests
 import pandas as pd
 import numpy as np
 
-class BearishHaramiScanner:
+class BearishHaramiCrossScanner:
     def __init__(self):
         """
-        Инициализация класса BearishHaramiScanner.
+        Инициализация класса BearishHaramiCrossScanner.
         """
         self.base_url = "https://api.bybit.com/v5/market"
-        self.min_volume_ratio = 1.3  # Минимальное соотношение объема для подтверждения
+        self.min_volume_ratio = 1.2  # Минимальное соотношение объема
 
     def get_all_symbols(self):
         """
@@ -60,30 +60,24 @@ class BearishHaramiScanner:
         
         return df
 
-    def is_bearish_harami(self, first_candle, second_candle):
+    def is_doji(self, candle):
         """
-        Проверяет, является ли комбинация свечей паттерном Bearish Harami.
+        Проверяет, является ли свеча дожи (разворотной свечой).
         """
-        # Первая свеча должна быть зеленой (бычьей)
-        if first_candle['close'] <= first_candle['open']:
-            return False
-            
-        # Вторая свеча должна быть красной (медвежьей)
-        if second_candle['close'] >= second_candle['open']:
-            return False
-            
-        # Тело второй свечи должно быть полностью внутри тела первой свечи
-        harami_condition = (second_candle['open'] < first_candle['close']) and \
-                          (second_candle['close'] > first_candle['open'])
+        body_size = abs(candle['close'] - candle['open'])
+        total_range = candle['high'] - candle['low']
         
-        return harami_condition
+        # Свеча считается дожи, если тело составляет менее 10% от общего диапазона
+        return body_size <= total_range * 0.1
 
-    def check_bearish_harami_pattern(self, df):
+    def check_bearish_harami_cross(self, df):
         """
-        Проверяет условия для надежного паттерна Bearish Harami:
-        1. Предшествующий восходящий тренд (4 из 5 свечей зеленые)
-        2. Последние две свечи образуют Bearish Harami
-        3. Подтверждение объема (объем выше среднего)
+        Проверяет условия для паттерна Bearish Harami Cross:
+        1. Восходящий тренд (4 из 5 первых свечей зеленые)
+        2. Первая свеча паттерна - зеленая (бычья)
+        3. Вторая свеча паттерна - дожи
+        4. Дожи полностью внутри тела первой свечи
+        5. Подтверждение объема
         """
         if len(df) < 6:
             return False
@@ -94,14 +88,24 @@ class BearishHaramiScanner:
         if green_count < 3:  # Минимум 3 из 4 свечей должны быть зелеными
             return False
 
-        # 2. Проверка последних двух свечей на Bearish Harami
-        first_candle = df.iloc[4]  # Первая свеча паттерна (бычья)
-        second_candle = df.iloc[5]  # Вторая свеча паттерна (медвежья)
-        
-        if not self.is_bearish_harami(first_candle, second_candle):
+        # 2. Первая свеча паттерна (зеленая)
+        first_candle = df.iloc[4]
+        if first_candle['close'] <= first_candle['open']:
             return False
 
-        # 3. Проверка объема (объем должен быть выше среднего)
+        # 3. Вторая свеча паттерна (дожи)
+        second_candle = df.iloc[5]
+        if not self.is_doji(second_candle):
+            return False
+
+        # 4. Дожи должен быть внутри тела первой свечи
+        harami_condition = (second_candle['high'] < first_candle['close']) and \
+                          (second_candle['low'] > first_candle['open'])
+        
+        if not harami_condition:
+            return False
+
+        # 5. Проверка объема (объем должен быть выше среднего)
         if second_candle['volume'] < self.min_volume_ratio * df['avg_volume'].iloc[5]:
             return False
 
@@ -109,26 +113,26 @@ class BearishHaramiScanner:
 
     def scan_all_symbols(self):
         """
-        Сканирует все активы на паттерн Bearish Harami.
+        Сканирует все активы на паттерн Bearish Harami Cross.
         """
         symbols = self.get_all_symbols()
-        print(f"Сканирование {len(symbols)} активов на паттерн Bearish Harami (6 свечей)...")
+        print(f"Сканирование {len(symbols)} активов на паттерн Bearish Harami Cross (6 свечей)...")
         
         results = []
         for symbol in symbols:
             try:
                 df = self.get_historical_candles(symbol, interval="60", limit=6)
-                if self.check_bearish_harami_pattern(df):
+                if self.check_bearish_harami_cross(df):
                     # Расчет дополнительных параметров
                     trend_strength = sum(df.iloc[i]['close'] > df.iloc[i]['open'] for i in range(4))/4
                     volume_ratio = df.iloc[5]['volume'] / df['avg_volume'].iloc[5]
-                    harami_size = (df.iloc[4]['close'] - df.iloc[4]['open'])/df.iloc[4]['open']*100
+                    first_candle_size = (df.iloc[4]['close'] - df.iloc[4]['open'])/df.iloc[4]['open']*100
                     
                     results.append({
                         "symbol": symbol,
                         "trend_strength": f"{trend_strength:.0%}",
                         "volume_ratio": f"{volume_ratio:.1f}x",
-                        "harami_size": f"{harami_size:.2f}%",
+                        "candle_size": f"{first_candle_size:.2f}%",
                         "close_price": df.iloc[5]['close']
                     })
             
@@ -137,15 +141,15 @@ class BearishHaramiScanner:
                 continue
 
         if results:
-            print("\nНайденные паттерны Bearish Harami:")
+            print("\nНайденные паттерны Bearish Harami Cross:")
             results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
             print(results_df.to_string(index=False))
         else:
-            print("\nПаттерн Bearish Harami не найден ни на одном активе.")
+            print("\nПаттерн Bearish Harami Cross не найден ни на одном активе.")
 
     def run(self):
         self.scan_all_symbols()
 
 if __name__ == "__main__":
-    scanner = BearishHaramiScanner()
+    scanner = BearishHaramiCrossScanner()
     scanner.run()

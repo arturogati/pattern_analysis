@@ -6,6 +6,8 @@ import Bull.bullish_window
 import Bull.hammer
 import Bull.new_laws
 import asyncio
+import datetime
+
 
 import Bull.inverted_hammer
 
@@ -79,5 +81,7 @@ async def main():
 
 # Запуск асинхронного кода
 if __name__ == "__main__":
+    current_time = datetime.datetime.now().time()
+    print(current_time)
     asyncio.run(main())
     

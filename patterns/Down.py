@@ -1,25 +1,26 @@
 import Bear
 import asyncio
 
+import Bear.Bearish_engulfing
 import Bear.Bearish_harami
-import Bear.Dark_storm_cloud
+import Bear.Bearish_harami_cross
 import Bear.Falling_stars
-import Bear.new_heights
+
 
 class DownSignals:
     async def bearish_harami(self):
         """
         Асинхронная функция для поиска паттерна Bearish Harami.
         """
-        scanner = Bear.Bearish_harami.BearishHarami()
+        scanner = Bear.Bearish_harami.BearishHaramiScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
-    async def dark_storm_cloud(self):
+    async def bearish_engulfing(self):
         """
-        Асинхронная функция для поиска паттерна Dark Storm Cloud.
+        Асинхронная функция для поиска паттерна bearish engulfing.
         """
-        scanner = Bear.Dark_storm_cloud.DarkStormCloud()
+        scanner = Bear.Bearish_engulfing.BearishEngulfingScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -27,15 +28,15 @@ class DownSignals:
         """
         Асинхронная функция для поиска паттерна Falling Stars.
         """
-        scanner = Bear.Falling_stars.FallingStar()
+        scanner = Bear.Falling_stars.FallingStarScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
-    async def new_heights(self):
+    async def bearish_harami_cross(self):
         """
-        Асинхронная функция для поиска паттерна 8-9 new heights.
+        Асинхронная функция для поиска паттерна bearish harami cross.
         """
-        scanner = Bear.new_heights.NewHeights()
+        scanner = Bear.Bearish_harami_cross.BearishHaramiCrossScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -51,9 +52,9 @@ async def main():
     # Запускаем обе функции асинхронно
     await asyncio.gather(
         down_signals.bearish_harami(),
-        down_signals.dark_storm_cloud(),
+        down_signals.bearish_engulfing(),
         down_signals.falling_stars(),
-        down_signals.new_heights()
+        down_signals.bearish_harami_cross()
     )
 
 # Запуск асинхронного кода
