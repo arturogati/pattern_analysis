@@ -116,39 +116,39 @@ def get_top_spreads(prices):
 def main():
     finder = ExchangePairsSaver()
     
-    while True:
-        pairs_data = finder.get_all_usdt_pairs()
+    #while True:
+    pairs_data = finder.get_all_usdt_pairs()
+    
+    for pair in pairs_data:
+        normalized_pair = pair
+        #print(f"\n[ {time.strftime('%H:%M:%S')} ] Analyzing pair: {normalized_pair}")
         
-        for pair in pairs_data:
-            normalized_pair = pair
-            #print(f"\n[ {time.strftime('%H:%M:%S')} ] Analyzing pair: {normalized_pair}")
-            
-            EXCHANGES = get_exchanges_config(normalized_pair)
-            prices = {}
-            
-            for name, config in EXCHANGES.items():
-                prices[name] = fetch_price(name, config)
-                if prices[name]:
-                    pass
-                    #print(f"{prices[name]:.4f}")
-                else:
-                    print(f"{name}: Failed to fetch price")
-            
-            top_spreads = get_top_spreads(prices)
-            
-            if top_spreads:
-                print(f"\n🔍 Top 3 Arbitrage Opportunities: {pair}")
-                for i, arb in enumerate(top_spreads, 1):
-                    print(f"{i}. Buy on {arb['buy_ex']:8} ({arb['buy_price']:8.4f}) "
-                          f"| Sell on {arb['sell_ex']:8} ({arb['sell_price']:8.4f}) "
-                          f"| Spread: ${arb['spread']:.4f} ({arb['spread_pct']:.2f}%)")
+        EXCHANGES = get_exchanges_config(normalized_pair)
+        prices = {}
+        
+        for name, config in EXCHANGES.items():
+            prices[name] = fetch_price(name, config)
+            if prices[name]:
+                pass
+                #print(f"{prices[name]:.4f}")
             else:
-                print("No valid data to calculate spreads.")
-            
-            time.sleep(1)  # Пауза между парами
+                print(f"{name}: Failed to fetch price")
         
-        print("\n🔁 Restarting scan cycle...")
-        time.sleep(5)  # Пауза между полными циклами сканирования
+        top_spreads = get_top_spreads(prices)
+        
+        if top_spreads:
+            print(f"\n🔍 Top 3 Arbitrage Opportunities: {pair}")
+            for i, arb in enumerate(top_spreads, 1):
+                print(f"{i}. Buy on {arb['buy_ex']:8} ({arb['buy_price']:8.4f}) "
+                        f"| Sell on {arb['sell_ex']:8} ({arb['sell_price']:8.4f}) "
+                        f"| Spread: ${arb['spread']:.4f} ({arb['spread_pct']:.2f}%)")
+        else:
+            print("No valid data to calculate spreads.")
+        
+        time.sleep(1)  # Пауза между парами
+    
+    print("\n🔁 Restarting scan cycle...")
+        #time.sleep(5)  # Пауза между полными циклами сканирования
 
 if __name__ == "__main__":
     main()

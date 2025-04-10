@@ -1,10 +1,9 @@
-import Bear
 import asyncio
 
-import Bear.Bearish_engulfing
-import Bear.Bearish_harami
-import Bear.Bearish_harami_cross
-import Bear.Falling_stars
+from Bear.Bearish_engulfing import BearishEngulfingScanner
+from Bear.Bearish_harami import BearishHaramiScanner
+from Bear.Bearish_harami_cross import BearishHaramiCrossScanner
+from Bear.Falling_stars import FallingStarScanner
 
 
 class DownSignals:
@@ -12,7 +11,7 @@ class DownSignals:
         """
         Асинхронная функция для поиска паттерна Bearish Harami.
         """
-        scanner = Bear.Bearish_harami.BearishHaramiScanner()
+        scanner = BearishHaramiScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -20,7 +19,7 @@ class DownSignals:
         """
         Асинхронная функция для поиска паттерна bearish engulfing.
         """
-        scanner = Bear.Bearish_engulfing.BearishEngulfingScanner()
+        scanner = BearishEngulfingScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -28,7 +27,7 @@ class DownSignals:
         """
         Асинхронная функция для поиска паттерна Falling Stars.
         """
-        scanner = Bear.Falling_stars.FallingStarScanner()
+        scanner = FallingStarScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -36,7 +35,7 @@ class DownSignals:
         """
         Асинхронная функция для поиска паттерна bearish harami cross.
         """
-        scanner = Bear.Bearish_harami_cross.BearishHaramiCrossScanner()
+        scanner = BearishHaramiCrossScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
