@@ -1,7 +1,7 @@
 import requests
 import time
-from collections import defaultdict
-from searching import ExchangePairsFinder
+from arbitrage.searching import ExchangePairsFinder
+
 
 class ExchangePairsSaver:
     def get_all_usdt_pairs(self):
@@ -24,7 +24,8 @@ class ExchangePairsSaver:
             processed_pairs.append(pair.replace(':', ''))
             print
         return processed_pairs
-        
+
+
 def get_exchanges_config(pair):
     """Генерируем конфиг бирж для конкретной пары"""
     return {
@@ -66,6 +67,7 @@ def get_exchanges_config(pair):
         }
     }
 
+
 def fetch_price(exchange_name, config):
     """Получаем текущую цену с указанной биржи"""
     try:
@@ -88,6 +90,7 @@ def fetch_price(exchange_name, config):
     except (ValueError, KeyError, IndexError) as e:
         print(f"Parsing error ({exchange_name}): {str(e)[:100]}")
     return None
+
 
 def get_top_spreads(prices):
     """Вычисляем все возможные спреды между биржами"""
@@ -113,19 +116,21 @@ def get_top_spreads(prices):
     
     return sorted(spreads, key=lambda x: abs(x['spread_pct']), reverse=True)[:3]
 
-def main():
+
+async def main():
     finder = ExchangePairsSaver()
     
     #while True:
     pairs_data = finder.get_all_usdt_pairs()
-    
+    results = []
+
     for pair in pairs_data:
         normalized_pair = pair
         #print(f"\n[ {time.strftime('%H:%M:%S')} ] Analyzing pair: {normalized_pair}")
         
         EXCHANGES = get_exchanges_config(normalized_pair)
         prices = {}
-        
+
         for name, config in EXCHANGES.items():
             prices[name] = fetch_price(name, config)
             if prices[name]:
@@ -139,16 +144,20 @@ def main():
         if top_spreads:
             print(f"\n🔍 Top 3 Arbitrage Opportunities: {pair}")
             for i, arb in enumerate(top_spreads, 1):
-                print(f"{i}. Buy on {arb['buy_ex']:8} ({arb['buy_price']:8.4f}) "
-                        f"| Sell on {arb['sell_ex']:8} ({arb['sell_price']:8.4f}) "
-                        f"| Spread: ${arb['spread']:.4f} ({arb['spread_pct']:.2f}%)")
+                print(
+                    f"{i}. Buy on {arb['buy_ex']:8} ({arb['buy_price']:8.4f}) "
+                    f"| Sell on {arb['sell_ex']:8} ({arb['sell_price']:8.4f}) "
+                    f"| Spread: ${arb['spread']:.4f} ({arb['spread_pct']:.2f}%)"
+                )
         else:
             print("No valid data to calculate spreads.")
         
         time.sleep(1)  # Пауза между парами
-    
+
     print("\n🔁 Restarting scan cycle...")
+    return results
         #time.sleep(5)  # Пауза между полными циклами сканирования
+
 
 if __name__ == "__main__":
     main()

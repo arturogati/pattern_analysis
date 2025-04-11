@@ -1,9 +1,9 @@
 import asyncio
 
-from Bear.Bearish_engulfing import BearishEngulfingScanner
-from Bear.Bearish_harami import BearishHaramiScanner
-from Bear.Bearish_harami_cross import BearishHaramiCrossScanner
-from Bear.Falling_stars import FallingStarScanner
+from patterns.Bear.Bearish_engulfing import BearishEngulfingScanner
+from patterns.Bear.Bearish_harami import BearishHaramiScanner
+from patterns.Bear.Bearish_harami_cross import BearishHaramiCrossScanner
+from patterns.Bear.Falling_stars import FallingStarScanner
 
 
 class DownSignals:

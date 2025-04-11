@@ -4,15 +4,13 @@ from pathlib import Path
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
-# Добавляем папку patterns в путь поиска модулей
-sys.path.insert(0, str(Path(__file__).parent / "patterns"))
-
 # Импортируем модули из папки patterns
 from patterns.Down import DownSignals
 from patterns.Long import LongSignals
-import arbitrage as arbitrage
+import arbitrage
 
 TOKEN = "8164995862:AAF0M7eCOyo3UzfngWdqR_beltZz5E9aQXk"
+
 
 async def execute_short(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка команды Short - выполняет модуль Down.py"""
@@ -39,6 +37,7 @@ async def execute_short(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(response)
     except Exception as e:
         await update.message.reply_text(f"❌ Ошибка: {str(e)}")
+
 
 async def execute_long(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка команды Long - выполняет модуль Long.py"""
@@ -71,6 +70,7 @@ async def execute_long(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"❌ Ошибка: {str(e)}")
 
+
 async def execute_arbitrage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка команды Арбитраж"""
     await update.message.reply_text("🔍 Ищу арбитражные возможности...")
@@ -86,6 +86,7 @@ async def execute_arbitrage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f"❌ Ошибка: {str(e)}")
 
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка команды /start"""
     await update.message.reply_text(
@@ -94,6 +95,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "• Short - медвежьи паттерны\n"
         "• Арбитраж - поиск арбитража"
     )
+
 
 async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """Обработка текстовых сообщений"""
@@ -108,12 +110,14 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         await update.message.reply_text("❌ Используйте: Long, Short, Арбитраж")
 
+
 def main():
     """Запуск бота"""
     app = Application.builder().token(TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
     app.run_polling()
+
 
 if __name__ == "__main__":
     main()

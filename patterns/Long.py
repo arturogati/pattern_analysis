@@ -1,15 +1,6 @@
-import Bull
-import Bull.bullish_engufling
-import Bull.bullish_engufling
-import Bull.bullish_harami
-import Bull.bullish_window
-import Bull.hammer
-import Bull.new_laws
+from patterns import Bull
 import asyncio
 import datetime
-
-
-import Bull.inverted_hammer
 
 
 class LongSignals:
@@ -17,7 +8,7 @@ class LongSignals:
         """
         Асинхронная функция для поиска паттерна Bullish Harami.
         """
-        scanner = Bull.bullish_harami.BullishHaramiScanner()
+        scanner = Bull.BullishHaramiScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -25,7 +16,7 @@ class LongSignals:
         """
         Асинхронная функция для поиска паттерна Hammer.
         """
-        scanner = Bull.hammer.HammerPatternScanner()
+        scanner = Bull.HammerPatternScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -33,7 +24,7 @@ class LongSignals:
         """
         Асинхронная функция для поиска паттерна InvertedHammer.
         """
-        scanner = Bull.inverted_hammer.EnhancedInvertedHammerScanner()
+        scanner = Bull.EnhancedInvertedHammerScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -41,7 +32,7 @@ class LongSignals:
         """
         Асинхронная функция для поиска паттерна Bullish engufling .
         """
-        scanner = Bull.bullish_engufling.BullishEngulfingScanner()
+        scanner = Bull.BullishEngulfingScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -49,7 +40,7 @@ class LongSignals:
         """
         Асинхронная функция для поиска паттерна Bullish effort .
         """
-        scanner = Bull.bullish_window.EnhancedBullishWindowScanner()
+        scanner = Bull.EnhancedBullishWindowScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
 
@@ -57,7 +48,7 @@ class LongSignals:
         """
         Асинхронная функция для поиска паттерна 8-10 New Laws.
         """
-        scanner = Bull.new_laws.NewLawsScanner()
+        scanner = Bull.NewLawsScanner()
         # Запускаем сканирование всех активов
         await asyncio.to_thread(scanner.scan_all_symbols)
         
@@ -78,6 +69,7 @@ async def main():
         long_signals.bullish_window(),
         long_signals.bullish_newLaws()
     )
+
 
 # Запуск асинхронного кода
 if __name__ == "__main__":
