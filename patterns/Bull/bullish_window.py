@@ -128,7 +128,9 @@ class EnhancedBullishWindowScanner:
         if results:
             print("\nНайденные паттерны Bullish window:")
             results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
-            print(results_df.to_string(index=False))
+            a=(results_df.to_string(index=False))
+            #a=results[0]['symbol']
+            return a
         else:
             print("\nПаттерн bullish window не обнаружен ни на одном активе.")
 

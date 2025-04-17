@@ -24,17 +24,18 @@ async def execute_short(update: Update, context: ContextTypes.DEFAULT_TYPE):
             down.bearish_harami_cross()
         )
         
-        response = "📉 Результаты сканирования медвежьих паттернов:\n\n"
-        patterns = ["Bearish Harami", "Bearish Engulfing", "Falling Stars", "Bearish Harami Cross"]
+        response = f"📈 Результаты сканирования бычьих паттернов:\n\n"
+        for i, result in enumerate(results, 1):
+            await update.message.reply_text(f"Результат {i}: {result}")
+        #patterns = ["Bearish Harami", "Bearish Engulfing", "Falling Stars", "Bearish Harami Cross"]
         
-        for pattern, result in zip(patterns, results):
-            response += f"{pattern}: {len(result)} сигналов\n"
-            if result:
-                for i, item in enumerate(result[:3], 1):
-                    response += f"  {i}. {item.get('symbol', 'N/A')}\n"
-            response += "\n"
-        
-        await update.message.reply_text(response)
+        # for pattern, result in zip(patterns, results):
+        #     response += f"{pattern}: {len(result)} сигналов\n"
+        #     if result:
+        #         for i, item in enumerate(result[:3], 1):
+        #             response += f"  {i}. {item.get('symbol', 'N/A')}\n"
+        #     response += "\n"
+        #await update.message.reply_text(response)
     except Exception as e:
         await update.message.reply_text(f"❌ Ошибка: {str(e)}")
 
@@ -53,20 +54,22 @@ async def execute_long(update: Update, context: ContextTypes.DEFAULT_TYPE):
             long.bullish_newLaws()
         )
         
-        response = "📈 Результаты сканирования бычьих паттернов:\n\n"
-        patterns = [
-            "Bullish Harami", "Hammer", "Inverted Hammer",
-            "Bullish Engulfing", "Bullish Window", "8-10 New Laws"
-        ]
+        response = f"📈 Результаты сканирования бычьих паттернов:\n\n"
+        for i, result in enumerate(results, 1):
+            await update.message.reply_text(f"Результат {i}: {result}")
+       # patterns = [
+            #"Bullish Harami", "Hammer", "Inverted Hammer",
+            #"Bullish Engulfing", "Bullish Window", "8-10 New Laws"
+        #]
         
-        for pattern, result in zip(patterns, results):
-            response += f"{pattern}: {len(result)} сигналов\n"
-            if result:
-                for i, item in enumerate(result[:2], 1):
-                    response += f"  {i}. {item.get('symbol', 'N/A')}\n"
-            response += "\n"
+        # for pattern, result in zip(patterns, results):
+        #     response += f"{pattern}: {len(result)} сигналов\n"
+        #     if result:
+        #         for i, item in enumerate(result[:2], 1):
+        #             response += f"  {i}. {item.get('symbol', 'N/A')}\n"
+        #     response += "\n"
         
-        await update.message.reply_text(response)
+        #await update.message.reply_text(response)
     except Exception as e:
         await update.message.reply_text(f"❌ Ошибка: {str(e)}")
 
@@ -76,13 +79,15 @@ async def execute_arbitrage(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("🔍 Ищу арбитражные возможности...")
     try:
         result = await arbitrage.main()
-        response = "🔄 Результаты арбитража:\n\n"
-        if result:
-            for i, item in enumerate(result[:5], 1):
-                response += f"{i}. {item}\n"
-        else:
-            response += "Нет арбитражных возможностей"
-        await update.message.reply_text(response)
+        
+        # response = "🔄 Результаты арбитража:\n\n"
+        # if result:
+        #     for i, item in enumerate(result[:5], 1):
+        #         response += f"{i}. {item}\n"
+        # else:
+        #     response += "Нет арбитражных возможностей"
+        
+        update.message.reply_text(result)
     except Exception as e:
         await update.message.reply_text(f"❌ Ошибка: {str(e)}")
 

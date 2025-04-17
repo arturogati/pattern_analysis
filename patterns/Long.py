@@ -10,7 +10,7 @@ class LongSignals:
         """
         scanner = Bull.BullishHaramiScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def hammer(self):
         """
@@ -18,7 +18,7 @@ class LongSignals:
         """
         scanner = Bull.HammerPatternScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def inverted_hammer(self):
         """
@@ -26,7 +26,7 @@ class LongSignals:
         """
         scanner = Bull.EnhancedInvertedHammerScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def bullish_engufling(self):
         """
@@ -34,7 +34,7 @@ class LongSignals:
         """
         scanner = Bull.BullishEngulfingScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def bullish_window(self):
         """
@@ -42,7 +42,7 @@ class LongSignals:
         """
         scanner = Bull.EnhancedBullishWindowScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def bullish_newLaws(self):
         """
@@ -50,7 +50,7 @@ class LongSignals:
         """
         scanner = Bull.NewLawsScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
         
 
 async def main():

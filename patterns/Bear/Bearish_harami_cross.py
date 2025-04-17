@@ -143,7 +143,9 @@ class BearishHaramiCrossScanner:
         if results:
             print("\nНайденные паттерны Bearish Harami Cross:")
             results_df = pd.DataFrame(results).sort_values("volume_ratio", ascending=False)
-            print(results_df.to_string(index=False))
+            a=(results_df.to_string(index=False))
+            #a=results[0]['symbol']
+            return a
         else:
             print("\nПаттерн Bearish Harami Cross не найден ни на одном активе.")
 

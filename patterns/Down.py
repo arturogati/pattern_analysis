@@ -13,7 +13,7 @@ class DownSignals:
         """
         scanner = BearishHaramiScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def bearish_engulfing(self):
         """
@@ -21,7 +21,7 @@ class DownSignals:
         """
         scanner = BearishEngulfingScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def falling_stars(self):
         """
@@ -29,7 +29,7 @@ class DownSignals:
         """
         scanner = FallingStarScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
     async def bearish_harami_cross(self):
         """
@@ -37,7 +37,7 @@ class DownSignals:
         """
         scanner = BearishHaramiCrossScanner()
         # Запускаем сканирование всех активов
-        await asyncio.to_thread(scanner.scan_all_symbols)
+        return await asyncio.to_thread(scanner.scan_all_symbols)
 
         
 
